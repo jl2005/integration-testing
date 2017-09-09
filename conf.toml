@@ -1,0 +1,62 @@
+#type:        time.Duration
+#description: wait script timeout
+#default:     10s
+#script-timeout = 10000000000
+
+#type:        time.Duration
+#description: wait one script timeout
+#default:     1s
+wait-timeout = "5s"
+
+#type:        string
+#description: connd address
+#default:     tcp://127.0.0.1:1883
+#connd-addr = "tcp://127.0.0.1:1883"
+
+#type:        string
+#description: connd grpc address
+#default:     127.0.0.1:50051
+#connd-grpc-addr = "127.0.0.1:50051"
+
+#type:        string
+#description: connd service name
+#default:     connd
+#connd-service = "connd"
+
+#type:        string
+#description: pushd address
+#default:     127.0.0.1:50054
+#pushd-addr = "127.0.0.1:50054"
+
+#type:        string
+#description: callback address
+#default:     127.0.0.1:24321
+#callback-addr = "127.0.0.1:24321"
+
+pushd-publish-name = "live-broadcast-bifrost-publish"
+pushd-publish-group = "live-broadcast"
+pushd-pushd-name = "live-broadcast-bifrost-pushd"
+pushd-pushd-group = "live-broadcast"
+pushd-region = "region"
+
+callback-name = "live-broadcast-callback"
+callback-group = "group"
+callback-region = "region"
+callback-servicename = "pushd-live"
+
+[etcd]
+
+#type:        []string
+#rules:       url
+#description: addresses of etcd cluster
+#required
+cluster = ["http://127.0.0.1:2379/"]
+
+#type:        string
+#description: username of etcd
+username = ""
+
+#type:        string
+#description: password of the user
+password = ""
+

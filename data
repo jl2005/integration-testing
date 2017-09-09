@@ -1,0 +1,78 @@
+Scenario: 测试A-->B
+new callback -id callback
+new user -id id -num 2
+call (id0|id1) sub -topic '/user/$clientid'
+call id0 pub -msg 'hello world' -topic '/user/id1'
+call id1 recv -topic '/user/id1' -msg 'hello world'
+call (id0|id1) unsub -topic '/user/$clientid'
+pcall callback0 onconnect -ids 'id0 id1'
+pcall callback0 onsub -num 2
+pcall callback0 onpub -num 1
+
+Scenario: 测试A,B同时订阅
+new callback -id callback
+new user -id id -num 2
+call id[01] sub -topic '/user/sametopic'
+call id0 pub -msg 'hello world' -topic '/user/sametopic'
+call id[01] recv -topic '/user/sametopic' -msg 'hello world'
+call id[01] recvn -topic '/user/sametopic' -num 1
+call id[01] unsub -topic '/user/sametopic'
+
+Scenario: 测试多人之间发送
+new callback -id callback
+new user -id ida -num 100
+new user -id idb -num 100
+call ida[0-9]* sub -topic '/user/$clientid'
+call idb[0-9]* sub -topic '/user/$clientid'
+call ida[0-9]* pub -topic '/user/idb$index' -msg 'hello idb'
+call idb[0-9]* pub -topic '/user/ida$index' -msg 'hello ida'
+pcall ida[0-9]* recv -topic '/user/$clientid' -msg 'hello ida'
+pcall idb[0-9]* recv -topic '/user/$clientid' -msg 'hello idb'
+
+Scenario: 测试多人发送，一个人接收
+new callback -id callback
+new user -id idc -num 1
+new user -id idd -num 100
+call idc0 sub -topic '/user/mutil2one'
+call idd[0-9]* pub -topic '/user/mutil2one' -msg 'hello ida0'
+pcall idc0 recv -topic '/user/mutil2one' -msg 'hello ida0'
+pcall idc0 recvn -topic '/user/mutil2one' -num 100
+
+Scenario: 测试广播
+new callback -id callback
+new user -id ida -num 101
+new user -id idb -num 1
+call ida[0-9]* sub -topic '/user/broadcast'
+call idb0 pub -topic '/user/broadcast' -msg 'hello world'
+call ida[0-9]* recvn -topic '/user/broadcast' -num 1
+
+Scenario: 测试取消订阅之后重新订阅
+new callback -id callback
+new user -id id -num 2
+call id0 sub -topic '/user/resub'
+call id1 pub -topic '/user/resub' -msg 'first'
+call id1 pub -topic '/user/resub' -msg 'second'
+call id0 recv -topic '/user/resub' -msg 'first'
+call id0 recv -topic '/user/resub' -msg 'second'
+call id0 recvn -topic '/user/resub' -num 2
+call id0 unsub -topic '/user/resub'
+call id0 sub -topic '/user/resub'
+call id1 pub -topic '/user/resub' -msg 'third'
+call id0 recv -topic '/user/resub' -msg 'third'
+
+Scenario: 测试同时下发两个topic，一个广播，一个主播.需要更改广播的阀值为50
+new callback -id callback
+new user -id ida -num 100 -stat true
+new user -id idb -num 1 -stat true
+call ida[0-9]* sub -topic '/user/topic1'
+call idb0 sub -topic '/user/topic2'
+pcall callback0 pub -topic '/user/topic1|/user/topic2' -num 100
+pcall ida[0-9]* stat -topic '/user/topic1' -num 100
+pcall idb0 stat -topic '/user/topic2' -num 100
+
+Scenario: 测试速度:100人同时订阅一个topic
+new callback -id callback
+new user -id ida -num 100 -stat true
+call ida[0-9]* sub -topic '/user/bench'
+pcall callback0 pub -topic '/user/bench' -num 1000
+pcall ida[0-9]* stat -topic '/user/bench' -num 1000
